@@ -26,8 +26,13 @@ router
         
         client.query(querry, function (err, dbres){
           console.log(err, dbres);
-          var output = _.groupBy(dbres.rows, function(b) { return b.shelf_num;});
-          res.json(output);
+          if(dbres) {
+            var output = _.groupBy(dbres.rows, function(b) { return b.shelf_num;});
+            res.json({err:null,data:output});
+          } else {
+            res.json({err:dbres,data:[]});
+          }
+
           client.end();
         });
 })
