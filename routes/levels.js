@@ -10,7 +10,7 @@ router
       var start = data.startDate;
       var end = data.endDate;
 
-      var querry = "SELECT rack_num,shelf_num,percent_full::integer*100 AS percent,date_recorded,url FROM shelf_levels " + 
+      var querry = "SELECT rack_num,shelf_num,(to_number(percent_full,'9D99')*100) AS percent,date_recorded,url FROM shelf_levels " + 
               "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
               "AND rack_num = '"+racknum+"' " + 
               "ORDER BY shelf_levels.date_recorded ASC";
