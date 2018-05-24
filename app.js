@@ -3,31 +3,20 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var _ = require('lodash');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var levelsRouter = require('./routes/levels');
+var targetRouter = require('./routes/targetController');
+var targetModel = require('./models/target');
+
 var mosca = require('mosca');
+var settings = require('./settings');
+var racks = require('./racks');
 var app = express();
-var ascoltatore = {
-  type: 'redis',
-  redis: require('redis'),
-  port: 15356,
-  return_buffers: true, // to handle binary payloads
-  host: "redis-15356.c11.us-east-1-2.ec2.cloud.redislabs.com",
-  password: "kbDG1s4EyMaVbQ1Y7bCErLE2lQ0ciyvd"
-};
-var moscaSettings = {
-  port: 1883,
-  backend: ascoltatore,
-  persistence: {
-    factory: mosca.persistence.Redis,
-    host:  "redis-15356.c11.us-east-1-2.ec2.cloud.redislabs.com",
-    port: 15356,
-    password: "kbDG1s4EyMaVbQ1Y7bCErLE2lQ0ciyvd"
-  }
-};
-var server = new mosca.Server(moscaSettings);
+
+var server = new mosca.Server(settings.database.redis);
 server.on('ready', setup);
 
 // view engine setup
@@ -49,7 +38,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/levels', levelsRouter);
-
+app.use('/api/target', targetRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -75,10 +64,35 @@ server.on('clientConnected', function(client) {
 // fired when a message is received
 server.on('published', function(packet, client) {
   console.log('Published', packet.topic, packet.payload);
+      _.forEach(racks,function(rack) {
+      var topic = 'headcount/target/'+rack.racknum;
+      var footcount = 'footcount/target/'+rack.racknum;
+          if(packet.topic == topic) {
+           var data = {
+              racknum : rack.racknum,
+              time : JSON.parse(packet.payload.toString()).time
+            }
+            targetModel.addData(data, function(err, msg){
+              if(err) console.log(err);
+              else {
+                console.log(msg);
+              }
+            })
+            return false;
+          } else if (packet.topic == footcount) {
+            targetModel.addFootData(rack.racknum, function(err, msg){
+              if(err) console.log(err);
+              else {
+                console.log(msg);
+              }
+            })
+            return false;
+          }
+      })
 });
 
 // fired when the mqtt server is ready
 function setup() {
-  console.log('Mosca server is up and running')
+  console.log('Mosca server is up and running.');
 }
 module.exports = app;

@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var { Pool, Client } = require('pg');
 var _ = require('lodash');
+var settings = require('../settings');
 /* GET users listing. */
 router
 .post('/:_num', function(req, res, next) {
@@ -15,13 +16,7 @@ router
               "AND racknum = '"+racknum+"' " + 
               "ORDER BY shelf_stock.date_recorded ASC";
       console.log(querry);
-      var client = new Client({
-          user: 'azizahtas',
-          host: 'smart-rack.c7neg6roarnk.us-east-1.rds.amazonaws.com',
-          database: 'smartrack',
-          password: 'azizahtas',
-          port: 5432,
-      });
+      var client = new Client(settings.database.postgres);
         client.connect();
         
         client.query(querry, function (err, dbres){
