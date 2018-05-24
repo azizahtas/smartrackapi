@@ -18,7 +18,7 @@ var settings = {
                 password: "kbDG1s4EyMaVbQ1Y7bCErLE2lQ0ciyvd"
             },
             http: {
-                port: 1884,
+                port: 80,
                 bundle: true,
                 static: './'
             }
@@ -31,11 +31,10 @@ var settings = {
                 mongo: {}
             },
             persistence: {
-                factory: mosca.persistence.Mongo ,
+                factory: mosca.persistence.Mongo,
                 url: "mongodb://localhost:27017/target"
             },
             http: {
-                port: 1884,
                 bundle: true,
                 static: './'
             }
