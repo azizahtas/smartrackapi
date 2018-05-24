@@ -18,7 +18,7 @@ var settings = {
                 password: "kbDG1s4EyMaVbQ1Y7bCErLE2lQ0ciyvd"
             },
             http: {
-                port: 1884,
+                port: 1234,
                 bundle: true,
                 static: './'
             }
