@@ -3,7 +3,6 @@ var mosca = require('mosca');
 var settings = {
     database : {
         redis : {
-            port: 1883,
             backend: {
                 type: 'redis',
                 redis: require('redis'),
@@ -25,7 +24,6 @@ var settings = {
             }
         }, 
         mongo : {
-            port: 1883,
             backend: {
                 type: 'mongo',
                 url: "mongodb://localhost:27017/target",
