@@ -1,3 +1,4 @@
+//taskkill /F /IM node.exe
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -11,17 +12,17 @@ var levelsRouter = require('./routes/levels');
 var targetRouter = require('./routes/targetController');
 var targetModel = require('./models/target');
 
-var mosca = require('mosca');
 var settings = require('./settings');
 var racks = require('./racks');
 var app = express();
 
-var server = new mosca.Server(settings.database.redis);
-server.on('ready', setup);
+var mqtt = require('mqtt')
+var client  = mqtt.connect('ws://smartrackmqtt.herokuapp.com')
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+app.set('mqttclient',client);
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
@@ -39,6 +40,13 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/levels', levelsRouter);
 app.use('/api/target', targetRouter);
+
+app.post('/api/traffic/:_num', function(req,res,next){
+  var racknum = req.params['_num'];
+  var data = req.body;
+  client.publish('motiondetect/target/'+racknum, JSON.stringify(data));
+  res.json({err:null,data:req.body});
+})
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -57,16 +65,48 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-server.on('clientConnected', function(client) {
-	console.log('client connected', client.id);		
+client.on('connect', function() {
+	console.log('Connected');
+  _.forEach(racks,function(rack) { 
+    client.subscribe('motiondetect/target/'+rack.racknum);
+    console.log("subscribed to "+'motiondetect/target/'+rack.racknum)
+  });
 });
 
 // fired when a message is received
-server.on('published', function(packet, client) {
-  console.log('Published', packet.topic, packet.payload);
-      _.forEach(racks,function(rack) {
+client.on('message', function(topic, message) {
+  console.log('message', topic, message.toString());
+  _.forEach(racks,function(rack) {
+      var motioncount = 'motiondetect/target/'+rack.racknum;
+      var tmp = JSON.parse(message.toString());
+          if (topic == motioncount) {
+            var data = {
+              racknum : rack.racknum,
+              time : tmp.time
+            }
+            if(tmp.time > 0) {
+              targetModel.addMotionData(data, function(err, msg){
+                if(err) console.log(err);
+                else {
+                  console.log(msg);
+                }
+              })
+            }
+            return false;
+          }
+      })
+});
+
+
+module.exports = app;
+
+/**
+ * 
+ * 
+ *       _.forEach(racks,function(rack) {
       var topic = 'headcount/target/'+rack.racknum;
       var footcount = 'footcount/target/'+rack.racknum;
+      var motioncount = 'motiondetect/target/'+rack.racknum;
           if(packet.topic == topic) {
            var data = {
               racknum : rack.racknum,
@@ -87,12 +127,15 @@ server.on('published', function(packet, client) {
               }
             })
             return false;
+          } else if (packet.topic == motioncount) {
+            targetModel.addMotionData(rack.racknum, function(err, msg){
+              if(err) console.log(err);
+              else {
+                console.log(msg);
+              }
+            })
+            return false;
           }
       })
-});
-
-// fired when the mqtt server is ready
-function setup() {
-  console.log('Mosca server is up and running.');
-}
-module.exports = app;
+ * 
+ */

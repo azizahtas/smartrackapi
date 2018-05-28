@@ -4,7 +4,6 @@ var { Pool, Client } = require('pg');
 var _ = require('lodash');
 var settings = require('../settings');
 /* GET users listing. */
-
 router
 /* Get Head count with date range */
 .post('/:_num', function(req, res, next) {
@@ -107,7 +106,106 @@ router
           client.end();
         });
 })
+
+/** Get PIR Data Today */
+// To Do Make Time And Count Data For Graph
+.get('/pirmotion/today/:_num', function(req, res, next) {
+      var today = new Date();
+      var dateString = today.getFullYear() + "-" + today.getMonth() +"-"+ today.getDate();
+      var racknum = req.params['_num'];
+        var querry = "SELECT date_recorded,time_recorded FROM motion_detect " + 
+                    "WHERE date_recorded > '"+dateString+"' AND racknum = '"+racknum+"' " + 
+                    "ORDER BY date_recorded ASC";
+      console.log(querry);
+      var client = new Client(settings.database.postgres);
+        client.connect();
+        
+        client.query(querry, function (err, dbres){
+          console.log(err, dbres);
+          if(dbres) {
+            res.json({err:null,data:dbres.rows});
+          } else {
+            res.json({err:err,data:[]});
+          }
+          client.end();
+        });
+})
+.delete('/pirmotion/today/:_num', function(req, res, next) {
+      var today = new Date();
+      var dateString = today.getFullYear() + "-" + today.getMonth() +"-"+ today.getDate();
+      var racknum = req.params['_num'];
+        var querry = "DELETE FROM motion_detect " + 
+                    "WHERE date_recorded > '"+dateString+"' AND racknum = '"+racknum+"' ";
+      console.log(querry);
+      var client = new Client(settings.database.postgres);
+        client.connect();
+        
+        client.query(querry, function (err, dbres){
+          console.log(err, dbres);
+          if(dbres) {
+            res.json({err:null,data:dbres.rows});
+          } else {
+            res.json({err:err,data:[]});
+          }
+          client.end();
+        });
+})
+/* Get PIR moton Date range */
+.post('/pirmotion/:_num', function(req, res, next) {
+      var data = req.body;
+      var racknum = req.params['_num'];
+      var start = data.startDate;
+      var end = data.endDate;
+        var querry = "SELECT racknum,date_recorded FROM motiondetect " + 
+                    "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
+                    "AND racknum = '"+racknum+"' " + 
+                    "ORDER BY target.date_recorded ASC";
+      console.log(querry);
+      var client = new Client(settings.database.postgres);
+        client.connect();
+        
+        client.query(querry, function (err, dbres){
+          console.log(err, dbres);
+          if(dbres) {
+            var output = dbres;
+            res.json({err:null,data:output});
+          } else {
+            res.json({err:err,data:[]});
+          }
+          client.end();
+        });
+})
+
+/** Get All pir sensor data*/
+.get('/pirmotion/all/:_num', function(req, res, next) {
+      var data = req.body;
+      var racknum = req.params['_num'];
+        var querry = "SELECT racknum,date_recorded FROM motiondetect " + 
+                    "WHERE racknum = '"+racknum+"' " + 
+                    "ORDER BY date_recorded ASC";
+      console.log(querry);
+      var client = new Client(settings.database.postgres);
+        client.connect();
+        client.query(querry, function (err, dbres){
+          console.log(err, dbres);
+          if(dbres) {
+            var output = dbres;
+            res.json({err:null,data:output});
+          } else {
+            res.json({err:err,data:[]});
+          }
+          client.end();
+        });
+})
+/*
+.post('/traffic/:_num', function(req,res,next){
+  console.log(req.body());
+  
+  next();
+})*/
 ;
+
+
 
 
 module.exports = router;

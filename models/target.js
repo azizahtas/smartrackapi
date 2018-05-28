@@ -1,7 +1,6 @@
 var { Pool, Client } = require('pg');
 var _ = require('lodash');
 var target = {};
-var today = new Date();
 var settings = require('../settings');
 
 target.addData = function(data, callback) {
@@ -43,7 +42,27 @@ target.addFootData = function(rackid, callback) {
         });
 }
 
+target.addMotionData = function(data, callback) {
+    var todaysDate = getDateTime();
+    var racknum = data.racknum;
+    var time = data.time;
+    var querry = "INSERT INTO motion_detect (racknum, date_recorded, time_recorded)" 
+                + " VALUES('"+racknum+"','"+todaysDate+"','"+time+"')" ;
+    var client = new Client(settings.database.postgres);
+       client.connect();
+       client.query(querry, function (err, dbres){
+          console.log(err, dbres);
+          if(dbres) {
+              callback(null, {data: dbres, querry: querry})
+          } else {
+              callback(err, {data: querry})
+          }
+
+          client.end();
+        });
+}
 function getDateTime() {
+    var today = new Date();
     var hour = today.getHours();
     hour = (hour < 10 ? "0" : '') + hour;
 
