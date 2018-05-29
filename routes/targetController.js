@@ -156,7 +156,7 @@ router
       var racknum = req.params['_num'];
       var start = data.startDate;
       var end = data.endDate;
-        var querry = "SELECT racknum,date_recorded FROM motion_detect " + 
+        var querry = "SELECT racknum,date_recorded,time_recorded FROM motion_detect " + 
                     "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
                     "AND racknum = '"+racknum+"' " + 
                     "ORDER BY date_recorded ASC";
