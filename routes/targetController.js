@@ -167,7 +167,7 @@ router
         client.query(querry, function (err, dbres){
           console.log(err, dbres);
           if(dbres) {
-            var output = dbres;
+            var output = dbres.rows;
             res.json({err:null,data:output});
           } else {
             res.json({err:err,data:[]});
