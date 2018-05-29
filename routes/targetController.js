@@ -159,7 +159,7 @@ router
         var querry = "SELECT racknum,date_recorded FROM motion_detect " + 
                     "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
                     "AND racknum = '"+racknum+"' " + 
-                    "ORDER BY target.date_recorded ASC";
+                    "ORDER BY date_recorded ASC";
       console.log(querry);
       var client = new Client(settings.database.postgres);
         client.connect();
