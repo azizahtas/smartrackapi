@@ -156,7 +156,7 @@ router
       var racknum = req.params['_num'];
       var start = data.startDate;
       var end = data.endDate;
-        var querry = "SELECT racknum,date_recorded FROM motiondetect " + 
+        var querry = "SELECT racknum,date_recorded FROM motion_detect " + 
                     "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
                     "AND racknum = '"+racknum+"' " + 
                     "ORDER BY target.date_recorded ASC";
@@ -180,7 +180,7 @@ router
 .get('/pirmotion/all/:_num', function(req, res, next) {
       var data = req.body;
       var racknum = req.params['_num'];
-        var querry = "SELECT racknum,date_recorded FROM motiondetect " + 
+        var querry = "SELECT racknum,date_recorded FROM motion_detect " + 
                     "WHERE racknum = '"+racknum+"' " + 
                     "ORDER BY date_recorded ASC";
       console.log(querry);
