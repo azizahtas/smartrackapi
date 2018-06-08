@@ -132,7 +132,7 @@ router
 })
 .delete('/pirmotion/today/:_num', function(req, res, next) {
       var today = new Date();
-      var dateString = today.getFullYear() + "-" + today.getMonth() +"-"+ today.getDate();
+      var dateString = today.getFullYear() + "-" + (today.getMonth()+1) +"-"+ today.getDate();
       var racknum = req.params['_num'];
         var querry = "DELETE FROM motion_detect " + 
                     "WHERE date_recorded > '"+dateString+"' AND racknum = '"+racknum+"' ";
