@@ -111,7 +111,7 @@ router
 // To Do Make Time And Count Data For Graph
 .get('/pirmotion/today/:_num', function(req, res, next) {
       var today = new Date();
-      var dateString = today.getFullYear() + "-" + today.getMonth() +"-"+ today.getDate();
+      var dateString = today.getFullYear() + "-" + (today.getMonth()+1) +"-"+ today.getDate();
       var racknum = req.params['_num'];
         var querry = "SELECT date_recorded,time_recorded FROM motion_detect " + 
                     "WHERE date_recorded > '"+dateString+"' AND racknum = '"+racknum+"' " + 

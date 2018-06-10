@@ -11,9 +11,9 @@ router
       var start = data.startDate;
       var end = data.endDate;
 
-      var querry = "SELECT racknum,shelf_num,percent_full*100 AS percent,date_recorded,url FROM shelf_stock " + 
-              "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
-              "AND racknum = '"+racknum+"' " + 
+      var querry = "SELECT racknum,shelf_num,percent_full*100 AS percent,date_recorded,url FROM shelf_stock " +
+              "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " +
+              "AND racknum = '"+racknum+"' " +
               "ORDER BY shelf_stock.date_recorded ASC";
       console.log(querry);
       var client = new Client(settings.database.postgres);
@@ -27,7 +27,6 @@ router
           } else {
             res.json({err:dbres,data:[]});
           }
-
           client.end();
         });
 })

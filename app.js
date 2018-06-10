@@ -68,7 +68,7 @@ app.use(function(err, req, res, next) {
 client.on('connect', function() {
 	console.log('Connected');
   _.forEach(racks,function(rack) { 
-    client.subscribe('motiondetect/target/'+rack.racknum);
+    //client.subscribe('motiondetect/target/'+rack.racknum);
     console.log("subscribed to "+'motiondetect/target/'+rack.racknum)
   });
 });
@@ -96,46 +96,4 @@ client.on('message', function(topic, message) {
           }
       })
 });
-
-
 module.exports = app;
-
-/**
- * 
- * 
- *       _.forEach(racks,function(rack) {
-      var topic = 'headcount/target/'+rack.racknum;
-      var footcount = 'footcount/target/'+rack.racknum;
-      var motioncount = 'motiondetect/target/'+rack.racknum;
-          if(packet.topic == topic) {
-           var data = {
-              racknum : rack.racknum,
-              time : JSON.parse(packet.payload.toString()).time
-            }
-            targetModel.addData(data, function(err, msg){
-              if(err) console.log(err);
-              else {
-                console.log(msg);
-              }
-            })
-            return false;
-          } else if (packet.topic == footcount) {
-            targetModel.addFootData(rack.racknum, function(err, msg){
-              if(err) console.log(err);
-              else {
-                console.log(msg);
-              }
-            })
-            return false;
-          } else if (packet.topic == motioncount) {
-            targetModel.addMotionData(rack.racknum, function(err, msg){
-              if(err) console.log(err);
-              else {
-                console.log(msg);
-              }
-            })
-            return false;
-          }
-      })
- * 
- */
