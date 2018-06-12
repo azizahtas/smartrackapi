@@ -108,7 +108,6 @@ router
 })
 
 /** Get PIR Data Today */
-// To Do Make Time And Count Data For Graph
 .get('/pirmotion/today/:_num', function(req, res, next) {
       var today = new Date();
       var dateString = today.getFullYear() + "-" + (today.getMonth()+1) +"-"+ today.getDate();
@@ -123,6 +122,7 @@ router
         client.query(querry, function (err, dbres){
           console.log(err, dbres);
           if(dbres) {
+            //var data = fixTimeZone(dbres.rows);
             res.json({err:null,data:dbres.rows});
           } else {
             res.json({err:err,data:[]});
@@ -135,7 +135,7 @@ router
       var dateString = today.getFullYear() + "-" + (today.getMonth()+1) +"-"+ today.getDate();
       var racknum = req.params['_num'];
         var querry = "DELETE FROM motion_detect " + 
-                    "WHERE date_recorded > '"+dateString+"' AND racknum = '"+racknum+"' ";
+                    "WHERE date_recorded > '" + dateString + "' AND racknum = '" + racknum + "' ";
       console.log(querry);
       var client = new Client(settings.database.postgres);
         client.connect();
@@ -156,10 +156,10 @@ router
       var racknum = req.params['_num'];
       var start = data.startDate;
       var end = data.endDate;
-        var querry = "SELECT racknum,date_recorded,time_recorded FROM motion_detect " + 
-                    "WHERE date_recorded > '"+start+"' AND  date_recorded < '"+end+"' " + 
+        var querry = "SELECT racknum,date_recorded,time_recorded,local_time FROM motion_detect " + 
+                    "WHERE local_time > '" + start + "' AND  local_time < '" + end + "' " +
                     "AND racknum = '"+racknum+"' " + 
-                    "ORDER BY date_recorded ASC";
+                    "ORDER BY local_time ASC";
       console.log(querry);
       var client = new Client(settings.database.postgres);
         client.connect();
@@ -205,7 +205,29 @@ router
 })*/
 ;
 
+function fixTimeZone(rows) {
+  _.forEach(rows, function (row) {
+    console.log(getUtcDate(row.date_recorded));
+  })
+}
+function getUtcDate (date) {
+  // Multiply by 1000 because JS works in milliseconds instead of the UNIX seconds
+  var date = new Date(date);
 
+  var year = date.getUTCFullYear();
+  var month = date.getUTCMonth() + 1; // getMonth() is zero-indexed, so we'll increment to get the correct month number
+  var day = date.getUTCDate();
+  var hours = date.getUTCHours();
+  var minutes = date.getUTCMinutes();
+  var seconds = date.getUTCSeconds();
 
+  month = (month < 10) ? '0' + month : month;
+  day = (day < 10) ? '0' + day : day;
+  hours = (hours < 10) ? '0' + hours : hours;
+  minutes = (minutes < 10) ? '0' + minutes : minutes;
+  seconds = (seconds < 10) ? '0' + seconds : seconds;
+
+  return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes;
+}
 
 module.exports = router;

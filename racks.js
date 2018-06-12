@@ -1,10 +1,12 @@
 
 var targets = [
     {
-        racknum : "000003"
+        racknum : "000003",
+        timezone : "-5.00"
     },
     {
-        racknum : "000004"
+        racknum : "000004",
+        timezone: "-5.00"
     }
 ]
 
