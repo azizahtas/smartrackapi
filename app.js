@@ -68,7 +68,7 @@ app.use(function(err, req, res, next) {
 client.on('connect', function() {
 	console.log('Connected');
   _.forEach(racks,function(rack) { 
-    //client.subscribe('motiondetect/target/'+rack.racknum);
+    client.subscribe('motiondetect/target/'+rack.racknum);
     console.log("subscribed to "+'motiondetect/target/'+rack.racknum)
   });
 });

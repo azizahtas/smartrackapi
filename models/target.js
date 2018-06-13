@@ -2,6 +2,8 @@ var { Pool, Client } = require('pg');
 var _ = require('lodash');
 var target = {};
 var settings = require('../settings');
+var racks = require('../racks');
+var { DateTime } = require('luxon');
 
 target.addData = function(data, callback) {
     var todaysDate = getDateTime();
@@ -46,8 +48,10 @@ target.addMotionData = function(data, callback) {
     var todaysDate = getDateTime();
     var racknum = data.racknum;
     var time = data.time;
-    var querry = "INSERT INTO motion_detect (racknum, date_recorded, time_recorded)" 
-                + " VALUES('"+racknum+"','"+todaysDate+"','"+time+"')" ;
+    var local_time = DateTime.local(todaysDate).minus({hours:5}).toFormat('yyyy-mm-dd TT');
+    console.log("Local Time: "+local_time);
+    var querry = "INSERT INTO motion_detect (racknum, date_recorded, time_recorded, local_time)"
+                + " VALUES('"+racknum+"','"+todaysDate+"','"+time+"','"+local_time+"')" ;
     var client = new Client(settings.database.postgres);
        client.connect();
        client.query(querry, function (err, dbres){
@@ -57,7 +61,6 @@ target.addMotionData = function(data, callback) {
           } else {
               callback(err, {data: querry})
           }
-
           client.end();
         });
 }
