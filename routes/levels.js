@@ -11,10 +11,10 @@ router
       var start = data.startDate;
       var end = data.endDate;
 
-      var querry = "SELECT racknum,shelf_num,percent_full*100 AS percent,date_recorded,local_time,url FROM shelf_stock " +
-              "WHERE local_time > '" + start + "' AND  local_time < '" + end + "' " +
+      var querry = "SELECT racknum,shelf_num,percent_full*100 AS percent,date_recorded,url FROM shelf_stock " +
+        "WHERE date_recorded > '" + start + "' AND  date_recorded < '" + end + "' " +
               "AND racknum = '"+racknum+"' " +
-              "ORDER BY local_time ASC";
+              "ORDER BY date_recorded ASC";
       console.log(querry);
       var client = new Client(settings.database.postgres);
         client.connect();
